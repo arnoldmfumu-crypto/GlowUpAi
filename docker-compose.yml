@@ -1,0 +1,58 @@
+services:
+
+  api:
+    build:
+      # context: . signifie "le dossier racine du projet est
+      # le contexte de build". Docker peut voir tous les fichiers
+      # depuis la racine — c'est pourquoi COPY . . dans le Dockerfile
+      # copie tout le projet, pas juste le dossier api/.
+      context: .
+      dockerfile: api/Dockerfile
+
+    ports:
+      # "hôte:conteneur" — publie le port 8000 du conteneur
+      # sur le port 8000 de votre machine. Vous pouvez accéder
+      # à l'API via localhost:8000 depuis votre navigateur.
+      - "8000:8000"
+
+    volumes:
+      # Monte des dossiers de votre machine dans le conteneur.
+      # Format : "chemin_local:chemin_dans_conteneur"
+      # Crucial pour ne pas avoir à rebuilder l'image à chaque fois
+      # que vous changez le modèle ou les données.
+      - ./data:/app/data
+      - ./vision/models:/app/vision/models
+      - ./rag/vectorstore:/app/rag/vectorstore
+
+    # Charge automatiquement votre fichier .env dans le conteneur.
+    # Vos clés MISTRAL_API_KEY, HF_TOKEN etc. seront disponibles
+    # via os.getenv() dans le code Python.
+    env_file:
+      - .env
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+
+    ports:
+      # Port 8501 = interface Streamlit accessible sur localhost:8501.
+      - "8501:8501"
+
+    # Le conteneur app ne démarre qu'après le conteneur api.
+    # Sans ça, Streamlit pourrait démarrer avant que l'API soit prête
+    # et les premiers appels API échoueraient.
+    depends_on:
+      - api
+
+    environment:
+      # Dans docker-compose, les conteneurs communiquent entre eux
+      # via leurs noms de service, pas via localhost.
+      # "api" est le nom du service défini plus haut.
+      # Donc l'URL de l'API vue depuis le conteneur app = http://api:8000
+      # et NON pas http://localhost:8000 (localhost dans un conteneur
+      # = le conteneur lui-même, pas votre machine ni l'autre conteneur).
+      - API_URL=http://api:8000
+
+    env_file:
+      - .env
