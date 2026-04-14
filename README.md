@@ -1,3 +1,13 @@
+## Installation
+
+### Avec uv (recommandé si vous avez uv installé)
+uv sync
+
+### Avec conda ou pip
+conda create -n skinmatch python=3.11
+conda activate skinmatch
+pip install -r requirements.txt
+
 ## Données
 
 Les datasets bruts sont inclus dans le repo (`data/raw/`) pour faciliter 
