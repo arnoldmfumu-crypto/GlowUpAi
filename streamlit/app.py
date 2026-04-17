@@ -68,14 +68,14 @@ if uploaded_file is not None:
 
     if st.button("Analyze and Recommend"):
         try:
-            with st.spinner("Calling acne model..."):
-                acne_response = requests.post(
-                    ACNE_API_URL,
-                    files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
-                    timeout=60
-                )
-                acne_response.raise_for_status()
-                acne_result = acne_response.json()
+            # with st.spinner("Calling acne model..."):
+            #     acne_response = requests.post(
+            #         ACNE_API_URL,
+            #         files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
+            #         timeout=60
+            #     )
+            #     acne_response.raise_for_status()
+            #     acne_result = acne_response.json()
 
             with st.spinner("Calling oily model..."):
                 oily_response = requests.post(
@@ -86,40 +86,43 @@ if uploaded_file is not None:
                 oily_response.raise_for_status()
                 oily_result = oily_response.json()
 
-            payload = {
-                "acne_prediction": acne_result["prediction"],
-                "acne_confidence": acne_result["confidence"],
-                "oily_prediction": oily_result["prediction"],
-                "oily_confidence": oily_result["confidence"],
-                "clean": clean,
-                "bio": bio,
-                "vegan": vegan,
-                "no_preference": no_pref
-            }
+            # payload = {
+            #     "acne_prediction": acne_result["prediction"],
+            #     "acne_confidence": acne_result["confidence"],
+            #     "oily_prediction": oily_result["prediction"],
+            #     "oily_confidence": oily_result["confidence"],
+            #     "clean": clean,
+            #     "bio": bio,
+            #     "vegan": vegan,
+            #     "no_preference": no_pref
+            # }
 
-            with st.spinner("Searching for the best product..."):
-                product_response = requests.post(
-                    PRODUCT_API_URL,
-                    json=payload,
-                    timeout=60
-                )
-                product_response.raise_for_status()
-                recommendation = product_response.json()
+            # with st.spinner("Searching for the best product..."):
+            #     product_response = requests.post(
+            #         PRODUCT_API_URL,
+            #         json=payload,
+            #         timeout=60
+            #     )
+            #     product_response.raise_for_status()
+            #     recommendation = product_response.json()
 
             st.success("Analysis completed")
+            
+            st.subheader("Oily Model Result")
+            st.write(f"Prediction: {oily_result['prediction']}")
+            st.write(f"Confidence: {oily_result['confidence']:.2f}")
+            # st.subheader("Model outputs")
+            # st.json({
+            #     "acne": acne_result,
+            #     "oily": oily_result
+            # })
 
-            st.subheader("Model outputs")
-            st.json({
-                "acne": acne_result,
-                "oily": oily_result
-            })
-
-            st.subheader("Recommended product")
-            st.write(f"**Product:** {recommendation['product_name']}")
-            st.write(f"**Brand:** {recommendation['brand']}")
-            st.write(f"**Format:** {recommendation['format']}")
-            st.write(f"**Price:** {recommendation['price']} €")
-            st.write(f"**Why this product?** {recommendation['reason']}")
+            # st.subheader("Recommended product")
+            # st.write(f"**Product:** {recommendation['product_name']}")
+            # st.write(f"**Brand:** {recommendation['brand']}")
+            # st.write(f"**Format:** {recommendation['format']}")
+            # st.write(f"**Price:** {recommendation['price']} €")
+            # st.write(f"**Why this product?** {recommendation['reason']}")
 
         except requests.exceptions.RequestException as e:
             st.error(f"API communication error: {e}")
