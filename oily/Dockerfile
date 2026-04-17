@@ -5,6 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY transforms.py .
+COPY mobilenetv2.py .
+COPY predict.py .
 COPY app.py .
 COPY models ./models
 
