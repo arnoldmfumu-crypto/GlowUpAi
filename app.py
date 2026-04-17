@@ -76,12 +76,9 @@ elif st.session_state.step == 4:
 
     result = st.session_state.result
 
-    st.write("### Problématiques détectées")
+    st.write("### Voici le produit que nous vous recommandons :")
 
-    st.write(f"🔴 Acné : {result['acne']*100:.0f}%")
-    st.write(f"📉 Rides : {result['wrinkles']*100:.0f}%")
-    st.write(f"🟤 Taches : {result['spots']*100:.0f}%")
-    st.write(f"💧 Hydratation : {result['hydration']}")
+    st.write(f"🔴 V : {result['acne']*100:.0f}%")
 
     if st.button("Recommencer"):
         st.session_state.step = 1
