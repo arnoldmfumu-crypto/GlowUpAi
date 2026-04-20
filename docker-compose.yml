@@ -7,11 +7,11 @@ services:
     environment:
       ACNE_API_URL: http://acne:8000/predict
       OILY_API_URL: http://oily:8000/predict
-      # PRODUCT_API_URL: http://product:8000/recommend
+      PRODUCT_API_URL: http://product:8000/recommend
     depends_on:
       - acne
       - oily
-      # - product
+      - product
 
   acne:
     build: ./acne
@@ -25,8 +25,15 @@ services:
     ports:
       - "8002:8000"
 
-  # product:
-  #   build: ./product
-  #   container_name: product_api
-  #   ports:
-  #     - "8003:8000"
+  product:
+    build: ./product
+    container_name: product_api
+    ports:
+      - "8003:8000"
+    env_file:
+      - .env
+    volumes:
+      - chroma_db:/app/chroma_db
+
+volumes:
+  chroma_db:

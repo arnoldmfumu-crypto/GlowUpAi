@@ -2,3 +2,6 @@ fastapi
 uvicorn[standard]
 pandas
 pydantic
+sentence-transformers
+chromadb
+groq
