@@ -5,19 +5,19 @@ services:
     ports:
       - "8501:8501"
     environment:
-      # ACNE_API_URL: http://acne:8000/predict
+      ACNE_API_URL: http://acne:8000/predict
       OILY_API_URL: http://oily:8000/predict
       # PRODUCT_API_URL: http://product:8000/recommend
     depends_on:
-      # - acne
+      - acne
       - oily
       # - product
 
-  # acne:
-  #   build: ./acne
-  #   container_name: acne_api
-  #   ports:
-  #     - "8001:8000"
+  acne:
+    build: ./acne
+    container_name: acne_api
+    ports:
+      - "8001:8000"
 
   oily:
     build: ./oily

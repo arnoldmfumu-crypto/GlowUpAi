@@ -40,8 +40,6 @@ def get_train_transforms() -> transforms.Compose:
         transforms.Resize(224),
         transforms.CenterCrop(224),
         transforms.RandomHorizontalFlip(p=0.5),
-        transforms.RandomRotation(15), #pas encore testé
-        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2), #pas encore testé
         transforms.ToTensor(),
         transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
     ])

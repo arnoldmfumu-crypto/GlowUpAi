@@ -68,14 +68,14 @@ if uploaded_file is not None:
 
     if st.button("Analyze and Recommend"):
         try:
-            # with st.spinner("Calling acne model..."):
-            #     acne_response = requests.post(
-            #         ACNE_API_URL,
-            #         files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
-            #         timeout=60
-            #     )
-            #     acne_response.raise_for_status()
-            #     acne_result = acne_response.json()
+            with st.spinner("Calling acne model..."):
+                acne_response = requests.post(
+                    ACNE_API_URL,
+                    files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
+                    timeout=60
+                )
+                acne_response.raise_for_status()
+                acne_result = acne_response.json()
 
             with st.spinner("Calling oily model..."):
                 oily_response = requests.post(
@@ -108,14 +108,14 @@ if uploaded_file is not None:
 
             st.success("Analysis completed")
             
-            st.subheader("Oily Model Result")
-            st.write(f"Prediction: {oily_result['prediction']}")
-            st.write(f"Confidence: {oily_result['confidence']:.2f}")
-            # st.subheader("Model outputs")
-            # st.json({
-            #     "acne": acne_result,
-            #     "oily": oily_result
-            # })
+            # st.subheader("Oily Model Result")
+            # st.write(f"Prediction: {oily_result['prediction']}")
+            # st.write(f"Confidence: {oily_result['confidence']:.2f}")
+            st.subheader("Model outputs")
+            st.json({
+                "acne": acne_result,
+                "oily": oily_result
+            })
 
             # st.subheader("Recommended product")
             # st.write(f"**Product:** {recommendation['product_name']}")
