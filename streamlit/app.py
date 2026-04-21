@@ -48,7 +48,7 @@ def get_image_as_base64(path):
 
 st.markdown("""
     <style>
-    /* 1. Importation des polices Google Fonts */
+    /* Importation des polices Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@300;400;500;600&display=swap');        
     
     /* On cible le conteneur spécifique du file uploader */
@@ -66,8 +66,7 @@ st.markdown("""
     [data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #E5B1B6 !important;
         background-color: #FFF9F4 !important;
-    }
-            
+    }            
 
     .custom-section {
         background-color: #ffffff;
@@ -93,7 +92,7 @@ st.markdown("""
         margin-right: -50vw;
         text-align: center;
         
-        /* Votre dégradé */
+        /* Dégradé */
         background: linear-gradient(180deg, #FAD0C4 0%, #FFF9F4 100%);
         
         /* Espacement interne */
@@ -107,6 +106,10 @@ st.markdown("""
         margin: 0 auto;
         padding: 0 20px;
     }
+            
+    .headings {
+        font-family: "Lora", serif;        
+    }
 
     p {
         color: #3C2A21;
@@ -116,12 +119,12 @@ st.markdown("""
         color: #fff; !important        
     }
 
-    /* 1. Correction du fond global */
+    /* Correction du fond global */
     [data-testid="stAppViewContainer"] {
         background-color: #FFF9F4;
     }
 
-    /* 2. Style pour le titre principal */
+    /* Style pour le titre principal */
     .main-title {
         color: #3C2A21 !important;
         font-family: 'Lora', serif !important;
@@ -132,7 +135,7 @@ st.markdown("""
         margin-bottom: 0px;
     }
             
-    /* 3. Style pour le sous-titre */
+    /* Style pour le sous-titre */
     .subtitle {
         color: #3C2A21 !important;
         font-family: 'serif';
@@ -175,12 +178,8 @@ st.markdown("""
         margin: 0 auto;
         text-align: center;
     }
-            
-    .headings {
-        font-family: "Lora", serif;        
-    }
     
-    /* Centre la checkbox "Tout me convient" spécifiquement */
+    /* Centrer la checkbox "Tout me convient" spécifiquement */
     .centered-checkbox {
         display: flex;
         justify-content: center;
@@ -201,20 +200,20 @@ st.markdown("""
             <p style="letter-spacing: 2px; font-size: 12px; color: #3C2A21; opacity: 0.7;">✨ DIAGNOSTIC PEAU • IA</p>
             <h1 class="main-title">
                 GlowUp AI
-            </h1>
-            <img src="data:image/png;base64,{logo_base64}" width="250" class="logo-img">
+            </h1>            
             <p style="color: #3C2A21; font-size: 18px; max-width: 600px; margin: 0 auto;">
-                Un selfie, vos préférences, et nous vous recommandons le produit cosmétique fait pour votre peau.
+                Un selfie, vos préférences, et nous vous recommandons les produits faits pour votre peau.
             </p>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
 
-# Etapes 1 et 2
+# Etape 1 : SELFIE
 st.markdown('<p class="headings" style="text-align:center; letter-spacing:2px; color:#B8A39A;">01 — VOTRE SELFIE</p>', unsafe_allow_html=True)
 uploaded_file = st.file_uploader("Déposez votre selfie", type=["jpg", "jpeg", "png"])
 
+# Etape 2 : PREFERENCES
 st.markdown('<p class="headings" style="text-align:center; letter-spacing:2px; color:#B8A39A;">02 — VOS PREFERENCES</p>', unsafe_allow_html=True)
 
 # --- Formulation (clean / bio / vegan) ---
@@ -231,17 +230,6 @@ def handle_formulation_change(source):
         if st.session_state[source]:
             st.session_state.no_pref = False
 
-## previous version
-# col1, col2, col3 = st.columns(3)
-# with col1:
-#     clean = st.checkbox("Clean", key="clean", on_change=handle_formulation_change, args=("clean",))
-# with col2:
-#     bio = st.checkbox("Bio", key="bio", on_change=handle_formulation_change, args=("bio",))
-# with col3:
-#     vegan = st.checkbox("Vegan", key="vegan", on_change=handle_formulation_change, args=("vegan",))
-
-# no_pref = st.checkbox("Tout me convient !", key="no_pref", on_change=handle_formulation_change, args=("no_pref",))
-
 c1, c2, c3, c4 = st.columns([1, 1, 1, 1.5])
 
 with c1:
@@ -251,7 +239,7 @@ with c2:
 with c3:
     vegan = st.checkbox("Vegan", key="vegan", on_change=handle_formulation_change, args=("vegan",))
 with c4:
-    no_pref = st.checkbox("Tout me convient.", key="no_pref", on_change=handle_formulation_change, args=("no_pref",))
+    no_pref = st.checkbox("Tout me convient", key="no_pref", on_change=handle_formulation_change, args=("no_pref",))
 
 st.divider()
 
@@ -278,7 +266,7 @@ if uploaded_file is not None:
     image = Image.open(BytesIO(image_bytes))
     st.image(image, caption="Image uploadée", use_container_width=True)
 
-    if st.button("Analyser et recommander", type="primary"):
+    if st.button("Lancer l'analyse", type="primary"):
         try:
             with st.spinner("Analyse acné..."):
                 acne_response = requests.post(
