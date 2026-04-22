@@ -7,7 +7,7 @@ from PIL import Image
 
 import base64
 
-st.set_page_config(page_title="Skinmatch", layout="centered")
+st.set_page_config(page_title="GlowUp AI", layout="centered")
 
 ACNE_API_URL = os.getenv("ACNE_API_URL", "http://acne:8000/predict")
 OILY_API_URL = os.getenv("OILY_API_URL", "http://oily:8000/predict")
