@@ -30,10 +30,10 @@ PRICE_BAND_OPTIONS = {
     "Premium (> 50€)": "premium",
 }
 
-st.title("Skinmatch")
-st.write("Uploadez une photo de votre visage, renseignez vos préférences et obtenez une recommandation produit.")
+st.title("GlowUp AI")
+st.write("Un selfie, vos préférences et nous vous recommandons le produit cosmétique fait pour votre peau")
 
-uploaded_file = st.file_uploader("Uploadez une image", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Déposez votre selfie", type=["jpg", "jpeg", "png"])
 
 st.subheader("Vos préférences")
 
