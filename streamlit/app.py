@@ -268,7 +268,7 @@ if uploaded_file is not None:
 
     if st.button("Lancer l'analyse", type="primary"):
         try:
-            with st.spinner("Analyse acné..."):
+            with st.spinner("Analyse de votre acné..."):
                 acne_response = requests.post(
                     ACNE_API_URL,
                     files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
@@ -277,7 +277,7 @@ if uploaded_file is not None:
                 acne_response.raise_for_status()
                 acne_result = acne_response.json()
 
-            with st.spinner("Analyse type de peau..."):
+            with st.spinner("Analyse de votre type de peau..."):
                 oily_response = requests.post(
                     OILY_API_URL,
                     files={"file": (uploaded_file.name, image_bytes, uploaded_file.type)},
@@ -306,7 +306,7 @@ if uploaded_file is not None:
                 },
             }
 
-            with st.spinner("Recherche du meilleur produit..."):
+            with st.spinner("Recherche des meilleurs produits..."):
                 product_response = requests.post(
                     PRODUCT_API_URL,
                     json=payload,
@@ -315,15 +315,15 @@ if uploaded_file is not None:
                 product_response.raise_for_status()
                 recommendation = product_response.json()
 
-            st.success("Analyse terminée !")
+            st.success("Voici les résultats :")
 
             col_skin, col_acne = st.columns(2)
             with col_skin:
-                st.metric("Type de peau", oily_result["prediction"].capitalize())
+                st.metric("Votre type de peau :", oily_result["prediction"].capitalize())
             with col_acne:
                 st.metric("Acné", "Oui" if acne_result["prediction"] == "acne" else "Non")
 
-            st.subheader("Produit recommandé")
+            st.subheader("Ces produits vous correspondent :")
 
             if "error" in recommendation:
                 st.warning(recommendation["error"])
