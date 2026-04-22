@@ -52,6 +52,12 @@ st.markdown("""
         padding-right: 2rem !important;
         justify-items: center !important;
     }
+    
+    [data-testid="stElementContainer"] {
+        align-self: center;
+        color: #3C2A21;
+        text-align: center;
+    }
 
     /* ─── HEADER ────────────────────────────────────────────────────── */
 
@@ -145,12 +151,6 @@ st.markdown("""
     div.stButton {
         display: flex;
         justify-content: center;
-    }
-    
-    [data-testid="stElementContainer"] {
-        align-self: center;
-        color: #3C2A21;
-        text-align: center;
     }
 
     div.stButton > button {
@@ -264,6 +264,16 @@ st.markdown("""
     hr {
         margin: 20px auto !important;
     }
+
+    [data-testid="stAlert"] {
+        border: 2px dashed #E5B1B6 !important;
+        background: transparent;
+        border-radius: 0.5rem;      
+    }
+            
+    .stAlertContainer {
+        background-color: transparent;
+    }
     
     [data-testid="stLayoutWrapper"] {
         margin-bottom: 3%;        
@@ -281,7 +291,7 @@ st.markdown("""
         color: #3C2A21 !important;
         font-family: 'Oxygen', sans-serif !important;
         font-size: 1.5rem;
-        padding: 2% 0;
+        padding: 2% 0 1%;
     }
     
     [data-testid="stBaseButton-primary"] [data-testid="stCaptionContainer"] p, [data-testid="stMarkdown"] [data-testid="stCaptionContainer"] p {
@@ -290,7 +300,7 @@ st.markdown("""
             
     /* other */
     [data-testid="stIconMaterial"] {
-        font-family: inherit;        
+        display: none;      
     }
 
     """, unsafe_allow_html=True)
@@ -371,6 +381,7 @@ if uploaded_file is not None:
     image = Image.open(BytesIO(image_bytes))
     st.image(image, caption="Photo importée", use_container_width=True)
 
+
     if st.button("Lancer l'analyse", type="primary"):
         try:
             with st.spinner("Analyse de votre acné..."):
@@ -427,6 +438,8 @@ if uploaded_file is not None:
                 st.metric("Votre type de peau :", oily_result["prediction"].capitalize())
             with col_acne:
                 st.metric("Est-elle acnéïque ?", "Oui" if acne_result["prediction"] == "acne" else "Non")
+
+            st.divider()
 
             st.markdown('<p style="font-size: 1rem ; padding: 0; margin-bottom: 0">Nous vous recommandons ce produit :</p>', unsafe_allow_html=True)
 
