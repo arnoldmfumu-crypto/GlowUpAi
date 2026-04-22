@@ -15,7 +15,7 @@ from predict import load_model, predict_image  # noqa: E402
 
 app = FastAPI(title="Oily Prediction API")
 
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "mobilenetv2_baseline_oily_dry_normal.pt"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "mobilenetv2_generated_dataset_oily_dry_normal_v1.pt"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 model, _metadata = load_model(str(MODEL_PATH), device=DEVICE)
@@ -31,7 +31,7 @@ async def predict(file: UploadFile = File(...)):
     try:
         contents = await file.read()
         pil_image = Image.open(BytesIO(contents)).convert("RGB")
-        result = predict_image(model, pil_image, device=DEVICE, use_face_detection=False)
+        result = predict_image(model, pil_image, device=DEVICE, use_face_detection=True)
         return {
             "model": "oily",
             "prediction": result["class"],
