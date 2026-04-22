@@ -110,8 +110,8 @@ st.markdown("""
         margin-top: -10px;
     }
             
-    [data-testid="stElementContainer"] label, [data-testid="stElementContainer"] span, [data-testid="stElementContainer"] p, [data-testid="stTooltipHoverTarget"] {
-        font-family: "Oxygen", sans-serif;        
+    [data-testid="stElementContainer"] label, [data-testid="stElementContainer"] span, [data-testid="stElementContainer"] p, [data-testid="stTooltipHoverTarget"], [data-testid="stMarkdownContainer"] ol li, [data-testid="stMarkdownContainer"] ul li {
+        font-family: "Oxygen", sans-serif; 
     }
     
     [data-testid="stWidgetLabel"] > span > div > p {
@@ -467,6 +467,43 @@ if uploaded_file is not None:
                     st.write(" · ".join(badges))
 
                 st.info(recommendation["explanation"])
+
+                # --- Routine structurée ---
+                st.subheader("Routine recommandée 🧴")
+
+                routine = recommendation.get("routine")
+
+                if routine:
+                    st.markdown("### 🌞 Matin")
+                    for step in routine.get("matin", []):
+                        if step.get("product_name"):
+                            label = f"**{step['etape']}** : {step['product_name']}"
+                            if step.get("brand"):
+                                label += f" ({step['brand']})"
+                            if step.get("is_main"):
+                                label += " ⭐"
+                            st.markdown(f"- {label}")
+                        else:
+                            st.markdown(f"- **{step['etape']}** : ❌ Aucun produit")
+
+                    st.markdown("### 🌙 Soir")
+                    for step in routine.get("soir", []):
+                        if step.get("product_name"):
+                            label = f"**{step['etape']}** : {step['product_name']}"
+                            if step.get("brand"):
+                                label += f" ({step['brand']})"
+                            if step.get("is_main"):
+                                label += " ⭐"
+                            st.markdown(f"- {label}")
+                        else:
+                            st.markdown(f"- **{step['etape']}** : ❌ Aucun produit")
+                else:
+                    st.warning("Aucune routine disponible")
+
+                # --- Routine validée par IA ---
+                if recommendation.get("routine_validated"):
+                    st.subheader("Routine optimisée par IA 🤖")
+                    st.write(recommendation["routine_validated"])
 
         except requests.exceptions.RequestException as e:
             st.error(f"Erreur de communication avec l'API : {e}")
