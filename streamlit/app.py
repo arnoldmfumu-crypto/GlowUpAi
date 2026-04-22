@@ -14,7 +14,7 @@ OILY_API_URL = os.getenv("OILY_API_URL", "http://oily:8000/predict")
 PRODUCT_API_URL = os.getenv("PRODUCT_API_URL", "http://product:8000/recommend")
 
 PRODUCT_TYPE_OPTIONS = {
-    "Peu importe": None,
+    "Tout": None,
     "Crème / Hydratant": "moisturizer",
     "Sérum": "serum",
     "Nettoyant": "cleanser",
@@ -26,7 +26,7 @@ PRODUCT_TYPE_OPTIONS = {
 }
 
 PRICE_BAND_OPTIONS = {
-    "Peu importe": "any",
+    "Tout": "any",
     "Budget (< 15€)": "budget",
     "Milieu de gamme (15–50€)": "mid",
     "Premium (> 50€)": "premium",
@@ -197,7 +197,7 @@ st.markdown("""
 st.markdown("""
     <div class="full-width-gradient">
         <div class="header-content">
-            <p style="letter-spacing: 2px; font-size: 12px; color: #3C2A21; opacity: 0.7;">✨ DIAGNOSTIC PEAU • IA</p>
+            <p style="letter-spacing: 2px; font-size: 12px; color: #3C2A21; opacity: 0.7;">DIAGNOSTIC PEAU • IA</p>
             <h1 class="main-title">
                 GlowUp AI
             </h1>            
@@ -247,13 +247,13 @@ st.divider()
 french = st.checkbox("Privilégier le savoir-faire français 🇫🇷", key="french")
 
 product_type_label = st.selectbox(
-    "Type de produit",
+    "Type de produit :",
     options=list(PRODUCT_TYPE_OPTIONS.keys()),
 )
 product_type = PRODUCT_TYPE_OPTIONS[product_type_label]
 
 price_band_label = st.radio(
-    "Budget",
+    "Votre budget :",
     options=list(PRICE_BAND_OPTIONS.keys()),
     horizontal=True,
 )

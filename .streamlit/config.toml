@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "hsl(354, 50%, 80%)"          # Rose poudré du bouton principal
+backgroundColor = "#FFF9F4"       # Crème très clair du fond de page
+secondaryBackgroundColor = "#FDF0E6" # Couleur des cartes/widgets
+textColor = "#3C2A21"             # Marron foncé pour le texte (lisibilité)
+font = "serif"                    # Pour s'approcher du style élégant du mockup
