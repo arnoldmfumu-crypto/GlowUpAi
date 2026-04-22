@@ -208,7 +208,7 @@ def build_index():
         for r in records
     ]
 
-    print("Génération des embeddings (first run : téléchargement du modèle ~80MB)...")
+    print("Génération des embeddings...", flush=True)
     model = SentenceTransformer("all-MiniLM-L6-v2")
     embeddings = model.encode(documents, show_progress_bar=True).tolist()
 
