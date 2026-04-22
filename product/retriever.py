@@ -28,7 +28,7 @@ def _get_collection():
     return _collection
 
 
-def _build_query(skin_type: str, acne: bool, preferences: dict) -> str:
+def _build_query(skin_type: str, acne: bool, preferences: dict) -> str: #il manque le skin type ici !!!!
     parts = [f"skincare product for {skin_type} skin"]
     if acne:
         parts.append("acne-prone")

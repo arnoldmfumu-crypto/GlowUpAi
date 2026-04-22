@@ -50,8 +50,8 @@ def load_model(model_path: str, device: Optional[str] = None) -> tuple[torch.nn.
     # Ajout de weights_only=True par sécurité (bonne pratique PyTorch récente)
     checkpoint: dict = torch.load(model_path, map_location=resolved_device, weights_only=False)
     metadata: dict   = checkpoint.get("metadata", {})
-
     num_classes: int = int(metadata.get("num_classes", NUM_CLASSES))
+
     # On reconstruit le modèle
     model = build_model(num_classes=num_classes, freeze_backbone=False)
     model.load_state_dict(checkpoint["model_state_dict"])
@@ -63,11 +63,11 @@ def load_model(model_path: str, device: Optional[str] = None) -> tuple[torch.nn.
 
 
 def preprocess_image(image_input: Union[str, Path, Image.Image], use_face_detection: bool = True) -> Image.Image:
-    # 1. Conversion en format OpenCV (BGR)
+    # Conversion en format OpenCV (RGB)
     if isinstance(image_input, (str, Path)):
         image_bgr = cv2.imread(str(image_input))
     else:
-        # Conversion PIL -> OpenCV BGR
+        # Conversion PIL -> OpenCV RGB
         image_bgr = cv2.cvtColor(np.array(image_input), cv2.COLOR_RGB2BGR)
 
     if image_bgr is None:
@@ -102,8 +102,8 @@ def preprocess_image(image_input: Union[str, Path, Image.Image], use_face_detect
         except Exception as e:
             print(f"Face detection failed: {e}. Using original image.")
 
-    # 3. Resize final et retour en PIL RGB
-    resized = cv2.resize(image_bgr, (640, 640))
+    # Resize final et retour en PIL RGB
+    resized = cv2.resize(image_bgr, (224, 224), interpolation=cv2.INTER_CUBIC)
     return Image.fromarray(cv2.cvtColor(resized, cv2.COLOR_BGR2RGB))
 
 
@@ -152,6 +152,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model, meta = load_model(args.model)
-    names = meta.get("class_names", CLASS_NAMES)
+    names = meta.get("class_names", meta.get("class_names", CLASS_NAMES))
     res = predict_image(model, args.image, class_names=names)
     print(res)

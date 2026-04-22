@@ -131,7 +131,7 @@ if uploaded_file is not None:
                 product_response = requests.post(
                     PRODUCT_API_URL,
                     json=payload,
-                    timeout=60,
+                    timeout=120,
                 )
                 product_response.raise_for_status()
                 recommendation = product_response.json()
