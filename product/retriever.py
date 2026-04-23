@@ -12,6 +12,20 @@ COLLECTION_NAME = "skincare_products"
 _model: Optional[SentenceTransformer] = None
 _collection = None
 
+ROUTINE_STEPS = {
+    "matin": ["cleanser", "toner", "serum", "moisturizer"],
+    "soir":  ["cleanser", "serum", "moisturizer"],
+}
+SKIN_RULES = {
+    "oily": {
+        "avoid": ["oil", "heavy", "comedogenic"],
+        "prefer": ["oil-free", "non-comedogenic", "light", "gel"],
+    },
+    "dry": {
+        "avoid": ["alcohol"],
+        "prefer": ["hydrating", "ceramides", "rich"],
+    }
+}
 
 def _get_model() -> SentenceTransformer:
     global _model
@@ -28,7 +42,7 @@ def _get_collection():
     return _collection
 
 
-def _build_query(skin_type: str, acne: bool, preferences: dict) -> str: #il manque le skin type ici !!!!
+def _build_query(skin_type: str, acne: bool, preferences: dict) -> str:
     parts = [f"skincare product for {skin_type} skin"]
     if acne:
         parts.append("acne-prone")
@@ -113,13 +127,13 @@ def _generate_explanation(product_doc: str, skin_type: str, acne: bool, preferen
     )
     return response.choices[0].message.content
 
-def _validate_routine_with_llm(routine: dict, skin_type: str, acne: bool) -> str:
+def routine_with_llm(routine: dict, skin_type: str, acne: bool) -> str:
     import os
     from groq import Groq
 
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
-    # Transformer la routine en texte lisible
+    # 1. FIX: On boucle sur la 'routine' envoyée, pas sur le dictionnaire brut ROUTINE_STEPS
     routine_text = ""
     for moment, steps in routine.items():
         routine_text += f"\n{moment.upper()}:\n"
@@ -139,35 +153,46 @@ def _validate_routine_with_llm(routine: dict, skin_type: str, acne: bool) -> str
             {
                 "role": "system",
                 "content": (
-                    "Tu es un dermatologue expert. "
-                    "Analyse la routine skincare suivante. "
-                    "1. Vérifie si elle est cohérente (pas de conflits d'actifs, bonne logique). "
-                    "2. Corrige la routine si nécessaire. "
-                    "3. Explique brièvement les corrections. "
-                    "Réponds en français.\n\n"
-                    "Format:\n"
-                    "Analyse:\n...\n\nRoutine corrigée:\nMatin:\n1...\n\nSoir:\n1...\n"
+                    "Tu es un influenceur beauté expert en skincare. "
+                    "Propose ta routine skincare en suivant la routine skincare qui t'a été fournie. "
+                    "1. Verifie que le produit recommandé est adapté et si c'est le cas propose le dans ta routine"
+                    "2. Propose un produit adapte au resultat du type de peau. "
+                    "3. Explique avec enthousiasme et brievement le rôle de chaque produit. "
+                    "Réponds en français avec un ton chaleureux. "
+                    "CRUCIAL : Tu dois ABSOLUMENT utiliser la syntaxe Markdown suivante pour structurer ta réponse.\n\n"
+                    "Format OBLIGATOIRE:\n"
+                    "Coucou ! Voici ta routine sur-mesure ✨ :\n\n"
+                    "### 🌞 Matin\n"
+                    "- **[product_type]** :[Nom du produit] [Ton explication...]\n\n"
+                    "### 🌙 Soir\n"
+                    "- **[product_type]** : [Nom du produit][Ton explication...]\n"
+                    "J'espère que cette routine te conviendra 😎!"
                 ),
             },
             {
                 "role": "user",
-                "content": f"Profil: {profile}\n\nRoutine:\n{routine_text}",
+                "content": f"Profil: {profile}\n\nRoutine exacte à présenter:\n{routine_text}",
             },
         ],
-        max_tokens=400,
+        max_tokens=550,
     )
 
     return response.choices[0].message.content
 
-ROUTINE_STEPS = {
-    "matin": ["cleanser", "toner", "serum", "moisturizer", "sunscreen"],
-    "soir":  ["cleanser", "exfoliant", "serum", "moisturizer"],
-}
 
+def is_compatible(meta: dict, skin_type: str) -> bool:
+    """Vérifie que le produit ne contient pas d'ingrédients déconseillés."""
+    rules = SKIN_RULES.get(skin_type, {})
+    name  = meta.get("name", "").lower()
+    return not any(word in name for word in rules.get("avoid", []))
+
+
+# 2. FIX: Il FAUT garder cette fonction dé-commentée, c'est elle qui interroge ChromaDB !
 def _build_routine_steps(
     skin_type: str,
     acne: bool,
-    main_product: dict  # ← on passe le produit principal recommandé
+    main_product: dict,
+    preferences: dict
 ) -> dict:
 
     routine = {}
@@ -176,7 +201,7 @@ def _build_routine_steps(
         routine[moment] = []
 
         for step in steps:
-            # Si le produit principal correspond à cette étape → on l'utilise directement
+            # Produit principal = on prend direct
             if main_product.get("product_type") == step:
                 routine[moment].append({
                     "etape":         step,
@@ -185,27 +210,47 @@ def _build_routine_steps(
                     "price_display": main_product["price_display"],
                     "is_vegan":      main_product["is_vegan"],
                     "is_clean":      main_product["is_clean"],
-                    "is_main":       True,   # ← flag pour le mettre en avant dans l'UI
+                    "is_main":       True,
                 })
-                continue  # pas besoin de requêter Chroma
+                continue
 
-            # Sinon → chercher un produit adapté dans Chroma
+            # Sinon -> chercher un produit
             query = f"{step} pour peau {skin_type}"
             if acne and step in ("serum", "cleanser", "exfoliant"):
                 query += " acnéique"
 
-            where   = {"product_type": {"$eq": step}}
-            results = _query(query, where, n_results=1)
+            if skin_type == "oily" and step == "serum":
+                query += " oil-free serum gel"
+            if skin_type == "oily" and step == "moisturizer":
+                query += " lightweight oil-free gel moisturizer"
+            if step == "toner":
+                query += " toner astringent niacinamide"
+            if step == "exfoliant":
+                if acne:
+                    query += " salicylic acid bha exfoliant" 
+
+            where = {"product_type": {"$eq": step}}
+            
+            results = _query(query, where, n_results=5)
 
             if results["ids"][0]:
-                meta = results["metadatas"][0][0]
+                candidates = results["metadatas"][0]
+                chosen = None
+                for m in candidates:
+                    if is_compatible(m, skin_type):
+                        chosen = m
+                        break
+
+                if not chosen:
+                    chosen = candidates[0]
+                    
                 routine[moment].append({
                     "etape":         step,
-                    "product_name":  meta["name"],
-                    "brand":         meta["brand"],
-                    "price_display": f"{meta['price_eur']}€" if meta["price_eur"] > 0 else "",
-                    "is_vegan":      meta["is_vegan"],
-                    "is_clean":      meta["is_clean"],
+                    "product_name":  chosen["name"],
+                    "brand":         chosen["brand"],
+                    "price_display": f"{chosen['price_eur']}€" if chosen["price_eur"] > 0 else "",
+                    "is_vegan":      chosen["is_vegan"],
+                    "is_clean":      chosen["is_clean"],
                     "is_main":       False,
                 })
             else:
@@ -217,6 +262,7 @@ def _build_routine_steps(
                 })
 
     return routine
+
 
 def recommend(skin_type: str, acne: bool, preferences: dict) -> dict:
     query_text = _build_query(skin_type, acne, preferences)
@@ -245,21 +291,23 @@ def recommend(skin_type: str, acne: bool, preferences: dict) -> dict:
         "is_clean":      meta["is_clean"],
     }
 
-    routine_complete = _build_routine_steps(skin_type, acne, main_product_dict)
-    # 👉 validation LLM
-    validated_routine = _validate_routine_with_llm(
-        routine_complete,
-        skin_type,
-        acne
-)
+    # 3. FIX: On dé-commente la création de la routine !
+    routine_complete = _build_routine_steps(skin_type, acne, main_product_dict, preferences)
+    
+    # 4. FIX: On passe bien `routine_complete` à l'influenceur LLM
+    validated_routine = routine_with_llm(
+        routine=routine_complete,
+        skin_type=skin_type,
+        acne=acne
+    )
 
-    # 👉 explication produit
     explanation = _generate_explanation(
         doc,
         skin_type,
         acne,
         preferences
-)
+    )
+    
     return {
         "product_name":  meta["name"],
         "brand":         meta["brand"],
