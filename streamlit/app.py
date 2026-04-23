@@ -5,8 +5,6 @@ import requests
 import streamlit as st
 from PIL import Image
 
-import base64
-
 st.set_page_config(page_title="GlowUp AI", layout="centered")
 
 ACNE_API_URL = os.getenv("ACNE_API_URL", "http://acne:8000/predict")
@@ -34,166 +32,280 @@ PRICE_BAND_OPTIONS = {
 
 ## Style
 
-# Pour intégrer l'image en fond transparent dans votre header HTML
-# (en attendant d'avoir un hébergement pour l'image)
-def get_image_as_base64(path):
-    with open(path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode()
-
-# Téléchargez le PNG ci-dessous et placez-le dans le même dossier
-# que votre script Streamlit sous le nom "logo_glowup.png"
-# logo_base64 = get_image_as_base64("logo-glowup-ai.png")
-
-# Injection de CSS personnalisé
-
 st.markdown("""
     <style>
     /* Importation des polices Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:wght@300;400;500;600&display=swap');        
-    
-    /* On cible le conteneur spécifique du file uploader */
-    [data-testid="stFileUploader"] {
-        background-color: white;
-        border-radius: 20px;
-        padding: 40px;
-        border: 1px solid #F0E6E1;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        max-width: 600px;
-        margin: 0 auto 30px;
-    }
-    
-    /* On stylise la zone de drop (le rectangle en pointillés) */
-    [data-testid="stFileUploaderDropzone"] {
-        border: 2px dashed #E5B1B6 !important;
-        background-color: #FFF9F4 !important;
-    }            
+    @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Oxygen:wght@300;400;700&display=swap');
 
-    .custom-section {
-        background-color: #ffffff;
-        padding: 30px;
-        border-radius: 20px;
-        border: 1px solid #F0E6E1;
-        margin-bottom: 25px;
+    /* ─── LAYOUT GLOBAL ─────────────────────────────────────────────── */
+
+    [data-testid="stAppViewContainer"] {
+        background-color: #FFF9F4;
     }
 
-    /* Supprimer les marges par défaut de Streamlit en haut */
     .block-container {
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
+        max-width: 700px !important;
+        margin: 0 auto !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        justify-items: center !important;
     }
+    
+    [data-testid="stElementContainer"] {
+        align-self: center;
+        color: #3C2A21;
+        text-align: center;
+    }
+
+    /* ─── HEADER ────────────────────────────────────────────────────── */
 
     .full-width-gradient {
-        /* On force la largeur sur 100% de la fenêtre */
         width: 100vw;
         position: relative;
         left: 50%;
-        right: 50%;
         margin-left: -50vw;
-        margin-right: -50vw;
-        text-align: center;
-        
-        /* Dégradé */
         background: linear-gradient(180deg, #FAD0C4 0%, #FFF9F4 100%);
-        
-        /* Espacement interne */
         padding: 60px 0 30px;
         text-align: center;
         margin-bottom: 40px;
     }
 
     .header-content {
-        max-width: 800px; /* Pour que le texte ne soit pas trop étalé */
+        max-width: 800px;
         margin: 0 auto;
         padding: 0 20px;
     }
-            
-    .headings {
-        font-family: "Lora", serif;        
+
+    #glow-up-ai span {
+        font-family: 'Lora', serif !important;
+        font-size: 42px;
+        font-weight: 500;
+        color: #3C2A21 !important;
+        text-align: center;
+        margin-bottom: 0;
     }
+
+    /* ─── TYPOGRAPHIE ───────────────────────────────────────────────── */
 
     p {
-        color: #3C2A21;
-    }
-    
-    .st-emotion-cache-1rsqh2s p {
-        color: #fff; !important        
-    }
-
-    /* Correction du fond global */
-    [data-testid="stAppViewContainer"] {
-        background-color: #FFF9F4;
-    }
-
-    /* Style pour le titre principal */
-    .main-title {
         color: #3C2A21 !important;
+    }
+
+    [data-testid="stMarkdownContainer"] p.headings {
         font-family: 'Lora', serif !important;
-        font-weight: 600;
-        font-size: 42px !important;
+        color: #B8A39A !important;
         text-align: center;
-        font-weight: 500;
-        margin-bottom: 0px;
+        letter-spacing: 2px;
+        font-size: 1.3rem;
     }
-            
-    /* Style pour le sous-titre */
+
     .subtitle {
-        color: #3C2A21 !important;
-        font-family: 'serif';
-        font-size: 24px !important;
-        text-align: center;
+        font-family: serif;
+        font-size: 24px;
         font-weight: 400;
+        color: #3C2A21 !important;
+        text-align: center;
         margin-top: -10px;
     }
+            
+    [data-testid="stElementContainer"] label, [data-testid="stElementContainer"] span, [data-testid="stElementContainer"] p, [data-testid="stTooltipHoverTarget"], [data-testid="stMarkdownContainer"] ol li, [data-testid="stMarkdownContainer"] ul li {
+        font-family: "Oxygen", sans-serif; 
+    }
+    
+    [data-testid="stWidgetLabel"] > span > div > p {
+        font-size: 1.2rem;        
+    }
+            
 
-    /* Correction de la zone d'upload */
-    [data-testid="stFileUploaderDropzone"] {
-        background-color: #ffffff !important;
-        border: 1px dashed #E5B1B6 !important;
+    /* ─── COMPOSANTS ────────────────────────────────────────────────── */
+
+    /* Carte générique */
+    .custom-section {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid #F0E6E1;
+        margin-bottom: 25px;
     }
 
-    /* Style du bouton */
+    /* File uploader */
+    [data-testid="stFileUploader"] {
+        background-color: #fff;
+        border-radius: 20px;
+        padding: 20px;
+        border: 1px solid #F0E6E1;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        max-width: 600px;
+        margin: 0 auto 50px;
+        justify-items: center;
+    }
+
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: #FFF9F4 !important;
+        border: 2px dashed #E5B1B6 !important;
+    }
+
+    /* Bouton */
+    div.stButton {
+        display: flex;
+        justify-content: center;
+    }
+
     div.stButton > button {
-        background-color: #E5B1B6 !important;
-        color: #3C2A21 !important;
-        border-radius: 25px !important;
+        background-color: #3C2A21 !important;
+        color: #ffffff !important;
         border: none !important;
         width: 100%;
     }
-    
-    .st-emotion-cache-kt79cc .st-emotion-cache-1x4hur2:first-child {
-        color: #3C2A21;      
+            
+    [data-testid="stButton"] > button > div > p {
+        color: #ffffff !important;        
+    }
+            
+    [data-testid="stFileUploaderDropzoneInstructions"] > div > span {            
+        color: #3C2A21 !important;
+    }
+            
+    [data-testid="stWidgetLabel"] > span > [data-testid="stMarkdownContainer"] > p {
+        color: #3C2A21 !important;
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 20px auto 0;
     }
     
-    /* cases à cocher */
+    [data-testid="stBaseButton-secondary"] p, [data-testid="stMarkdownContainer"] span {
+        color: #fff !important;
+        font-family: inherit !important;
+    }
+    
+    [data-testid="stWidgetLabel"] {
+        color: #3C2A21 !important;
+    }
+            
+    
+
+    /* ─── FORMULAIRE ────────────────────────────────────────────────── */
+
+    /* Checkboxes */
+    [data-testid="stCheckbox"] {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     [data-testid="stCheckbox"] p,
     [data-testid="stMarkdownContainer"] p {
-        color: #3C2A21; !important;
-        text-align: center !important;
-    }
-            
-    /* Centre le texte des étiquettes de checkbox */
-    .stCheckbox {
-        display: flex;
-        justify-content: center;
-        margin: 0 auto;
+        color: #3C2A21;
         text-align: center;
     }
-    
-    /* Centrer la checkbox "Tout me convient" spécifiquement */
-    .centered-checkbox {
+            
+    [data-testid="stMarkdownContainer"] p.ingredients {
+        text-align: center;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    [data-testid="stHorizontalBlock"] {
+        justify-content: center !important;
+    }
+
+    /* Selectbox */
+    [data-testid="stSelectbox"],
+    [data-testid="stSelectbox"] label {
+        text-align: center;
+        margin: 0 auto;
+        justify-content: center;
+        font-family: 'Oxygen', sans serif;
+    }
+
+    /* Selector */          
+    .st-c4 {
+        width: 80%;
+        align-self: center;
+        margin: 15px auto 0;
+    }
+
+    /* Radio */
+    [data-testid="stRadio"] {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    [data-testid="stBaseButton-primary"] > div > span > div > p {
+        color: #fff !important;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 0 25px;
+    }
+
+    [data-testid="stRadio"] > label {
+        text-align: center;
+    }
+
+    [data-testid="stRadio"] [role="radiogroup"] {
+        justify-content: center;
+    }
+
+    /* ─── RÉSULTATS ─────────────────────────────────────────────────── */
+
+    [data-testid="stMetric"] {
+        text-align: center;
+    }
+
+    [data-testid="stImage"] {
         display: flex;
         justify-content: center;
-        margin-top: 20px;
+    }
+
+    hr {
+        margin: 20px auto !important;
+    }
+
+    [data-testid="stAlert"] {
+        border: 2px dashed #E5B1B6 !important;
+        background: transparent;
+        border-radius: 0.5rem;      
     }
             
-    /* Type de produits */
-    .st.selectbox {
-        text-align: center;        
+    .stAlertContainer {
+        background-color: transparent;
     }
-    </style>
+    
+    [data-testid="stLayoutWrapper"] {
+        margin-bottom: 3%;        
+    }
+    
+    [data-testid="stMetricValue"] p, [data-testid="stAlertContentInfo"] p {
+        text-align: justify;
+    }
+            
+    [data-testid="stHeadingWithActionElements"] > h3 {
+        padding-bottom: 0;        
+    }
+            
+    [data-testid="stHeadingWithActionElements"] > h3 > span {
+        color: #3C2A21 !important;
+        font-family: 'Oxygen', sans-serif !important;
+        font-size: 1.5rem;
+        padding: 2% 0 1%;
+    }
+    
+    [data-testid="stBaseButton-primary"] [data-testid="stCaptionContainer"] p, [data-testid="stMarkdown"] [data-testid="stCaptionContainer"] p {
+        text-transform: uppercase;        
+    }
+            
+    /* other */
+    [data-testid="stIconMaterial"] {
+        display: none;      
+    }
+
     """, unsafe_allow_html=True)
 
-# Création d'une section "Header"
+# Header
 st.markdown("""
     <div class="full-width-gradient">
         <div class="header-content">
@@ -210,14 +322,14 @@ st.markdown("""
 
 
 # Etape 1 : SELFIE
-st.markdown('<p class="headings" style="text-align:center; letter-spacing:2px; color:#B8A39A;">01 — VOTRE SELFIE</p>', unsafe_allow_html=True)
-uploaded_file = st.file_uploader("Déposez votre selfie", type=["jpg", "jpeg", "png"])
+st.markdown('<p class="headings">01 — VOTRE SELFIE</p>', unsafe_allow_html=True)
+uploaded_file = st.file_uploader("Importez votre selfie", type=["jpg", "jpeg", "png"])
 
 # Etape 2 : PREFERENCES
-st.markdown('<p class="headings" style="text-align:center; letter-spacing:2px; color:#B8A39A;">02 — VOS PREFERENCES</p>', unsafe_allow_html=True)
+st.markdown('<p class="headings">02 — VOS PREFERENCES</p>', unsafe_allow_html=True)
 
 # --- Formulation (clean / bio / vegan) ---
-st.markdown('<p style="text-align: center: font-weight: bold">Formulation</p>', unsafe_allow_html=True)
+st.markdown('<p class="ingredients">Formulation</p>', unsafe_allow_html=True)
 
 
 def handle_formulation_change(source):
@@ -241,19 +353,19 @@ with c3:
 with c4:
     no_pref = st.checkbox("Tout me convient", key="no_pref", on_change=handle_formulation_change, args=("no_pref",))
 
-st.divider()
+#st.divider()
 
 # --- Autres préférences ---
 french = st.checkbox("Privilégier le savoir-faire français 🇫🇷", key="french")
 
 product_type_label = st.selectbox(
-    "Type de produit :",
+    "Type de produit",
     options=list(PRODUCT_TYPE_OPTIONS.keys()),
 )
 product_type = PRODUCT_TYPE_OPTIONS[product_type_label]
 
 price_band_label = st.radio(
-    "Votre budget :",
+    "Votre budget",
     options=list(PRICE_BAND_OPTIONS.keys()),
     horizontal=True,
 )
@@ -261,10 +373,14 @@ price_band = PRICE_BAND_OPTIONS[price_band_label]
 
 st.divider()
 
+
+# --- Résultats ---
+
 if uploaded_file is not None:
     image_bytes = uploaded_file.read()
     image = Image.open(BytesIO(image_bytes))
-    st.image(image, caption="Image uploadée", use_container_width=True)
+    st.image(image, caption="Photo importée", use_container_width=True)
+
 
     if st.button("Lancer l'analyse", type="primary"):
         try:
@@ -306,7 +422,7 @@ if uploaded_file is not None:
                 },
             }
 
-            with st.spinner("Recherche des meilleurs produits..."):
+            with st.spinner("Nous recherchons les meilleurs produits..."):
                 product_response = requests.post(
                     PRODUCT_API_URL,
                     json=payload,
@@ -315,15 +431,17 @@ if uploaded_file is not None:
                 product_response.raise_for_status()
                 recommendation = product_response.json()
 
-            st.success("Voici les résultats :")
+            st.markdown("<p class='headings' style='margin-top: 10%'>03 — RESULTATS DE L'ANALYSE</p>", unsafe_allow_html=True)
 
             col_skin, col_acne = st.columns(2)
             with col_skin:
                 st.metric("Votre type de peau :", oily_result["prediction"].capitalize())
             with col_acne:
-                st.metric("Acné", "Oui" if acne_result["prediction"] == "acne" else "Non")
+                st.metric("Est-elle acnéïque ?", "Oui" if acne_result["prediction"] == "acne" else "Non")
 
-            st.subheader("Ces produits vous correspondent :")
+            st.divider()
+
+            st.markdown('<p style="font-size: 1rem ; padding: 0; margin-bottom: 0">Nous vous recommandons ce produit :</p>', unsafe_allow_html=True)
 
             if "error" in recommendation:
                 st.warning(recommendation["error"])
@@ -389,6 +507,5 @@ if uploaded_file is not None:
 
         except requests.exceptions.RequestException as e:
             st.error(f"Erreur de communication avec l'API : {e}")
-
         except Exception as e:
             st.error(f"Erreur inattendue : {e}")

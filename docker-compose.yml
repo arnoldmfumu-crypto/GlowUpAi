@@ -1,9 +1,12 @@
 services:
   streamlit:
     build: ./streamlit
+    init: true
     container_name: streamlit_app
     ports:
       - "8501:8501"
+    volumes:
+      - ./streamlit:/app
     environment:
       ACNE_API_URL: http://acne:8000/predict
       OILY_API_URL: http://oily:8000/predict
@@ -15,18 +18,21 @@ services:
 
   acne:
     build: ./acne
+    init: true
     container_name: acne_api
     ports:
       - "8001:8000"
 
   oily:
     build: ./oily
+    init: true
     container_name: oily_api
     ports:
       - "8002:8000"
 
   product:
     build: ./product
+    init: true
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
